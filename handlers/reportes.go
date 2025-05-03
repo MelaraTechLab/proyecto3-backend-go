@@ -24,6 +24,7 @@ func Reporte1Handler(w http.ResponseWriter, r *http.Request) {
     desde := r.URL.Query().Get("desde")
     hasta := r.URL.Query().Get("hasta")
     tipo := r.URL.Query().Get("tipo")
+    lugar := r.URL.Query().Get("lugar")
 
     query := `
     SELECT e.nombre, e.fecha, l.nombre, t.nombre
@@ -33,10 +34,11 @@ func Reporte1Handler(w http.ResponseWriter, r *http.Request) {
     WHERE ($1 = '' OR e.fecha >= $1::DATE)
       AND ($2 = '' OR e.fecha <= $2::DATE)
       AND ($3 = '' OR t.nombre = $3)
+      AND ($4 = '' OR l.nombre = $4)
     ORDER BY e.fecha;
-`
+    `
 
-    rows, err := db.DB.Query(query, desde, hasta, tipo)
+    rows, err := db.DB.Query(query, desde, hasta, tipo, lugar)
     if err != nil {
         http.Error(w, err.Error(), 500)
         return
@@ -52,6 +54,7 @@ func Reporte1Handler(w http.ResponseWriter, r *http.Request) {
 
     json.NewEncoder(w).Encode(eventos)
 }
+
 
 // --- Reporte 2: Total de asistentes por evento ---
 func Reporte2Handler(w http.ResponseWriter, r *http.Request) {
