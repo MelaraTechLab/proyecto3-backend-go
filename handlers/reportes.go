@@ -1,9 +1,7 @@
 package handlers
 
 import (
-    "database/sql"
     "encoding/json"
-    "fmt"
     "net/http"
     "proyecto3-backend-go/db"
 )
@@ -28,15 +26,16 @@ func Reporte1Handler(w http.ResponseWriter, r *http.Request) {
     tipo := r.URL.Query().Get("tipo")
 
     query := `
-        SELECT e.nombre, e.fecha, l.nombre, t.nombre
-        FROM evento e
-        JOIN lugar l ON e.lugar_id = l.id
-        JOIN tipoevento t ON e.tipo_id = t.id
-        WHERE ($1 = '' OR e.fecha >= $1)
-          AND ($2 = '' OR e.fecha <= $2)
-          AND ($3 = '' OR t.nombre = $3)
-        ORDER BY e.fecha;
-    `
+    SELECT e.nombre, e.fecha, l.nombre, t.nombre
+    FROM evento e
+    JOIN lugar l ON e.lugar_id = l.id
+    JOIN tipoevento t ON e.tipo_id = t.id
+    WHERE ($1 = '' OR e.fecha >= $1::DATE)
+      AND ($2 = '' OR e.fecha <= $2::DATE)
+      AND ($3 = '' OR t.nombre = $3)
+    ORDER BY e.fecha;
+`
+
     rows, err := db.DB.Query(query, desde, hasta, tipo)
     if err != nil {
         http.Error(w, err.Error(), 500)
